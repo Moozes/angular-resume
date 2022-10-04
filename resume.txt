@@ -1,0 +1,103 @@
+CLI
+    ng new my-app --no-strict
+    ng g c component-name
+    ng serve / npm start
+
+syntaxe
+    component
+        selector: "app-component-name" 
+            <app-component-name></app-component-name>
+        selector: "[app-component-name]" 
+            <div app-component-name ></div>
+        selector: ".app-component-name"
+            <div class="app-component-name" ></div>
+
+    databinding
+        string interpolation                {{expression}}
+        string interpolation in attributes  value={{ expression }}
+        property binding                    [disabled]="expression"
+        event binding                       (event)="expression" / "function($event)"
+        two way binding(event+property)     [(ngModel)]="value"
+
+    pre defined directives
+        structural
+            *ngIf="boolean expression"
+            *ngFor="let v of variable; let i = index"
+        property
+            [ngStyle]="{color: expression}"
+            [ngClass]="{classname : boolean expression, 'class-name' : boolean expression}"
+
+
+    Directive VS Component
+        Component = Directive + template
+        Directive doesnt have a template
+        Directive adds functionality to template, like: ngStyle/ngClass/ngModel
+        Directive: is like orders to be executed inside a template
+
+
+    defining custom properties of components
+        class component {
+            @Input() customProperty: string;
+        }
+        ----
+        <app-component [customProperty]="expression" ></app-component>
+
+    defining custom events of components (in React we pass down functions, in angular we emmit events)
+        class component {
+            @Output() cutomEvent = new EventEmitter<type of emited data>()
+            ...
+            someMethod() {
+                this.customEvent.emit(data: type of emited data)
+            }
+        }
+        ---
+        <app-component (customEvent)="method($event)" ></app-component>
+
+
+    view encapsulation
+        @component({
+            ...
+            encapsulation: ViewEncapsulation.Emulated // None, style will be applied to all app components
+                                                      // ShadowDom, same as emulated but not supported by all browsers 
+        })                                            // Emulated, style only applied to component
+
+    
+    local references: 
+    can be used with any html element
+    can only be used inside template code, cant be accessed from ts file, for that use @ViewChild
+        <div #titleDiv ></div>
+        <input #nameInput />
+        
+        <button (click)="method(#nameInput)" ></button>
+        ---
+        method(nameInput: HTMLInputElement) {
+            console.log(nameInput.value)
+        }
+
+
+    accessing local references from ts file: 
+    we use: @ViewChild(localReference, {static: true})
+    we add {static: true} if we are accessing it in ngOnInit() {}
+        @ViewChild('nameInput', {static: true}) nameInputRef: ElementRef<HTMLInputElement>
+        ...
+        method() {
+            ...
+            console.log(nameInputRef.nativeElement.value)
+        }
+
+    NOTE: dont change DOM with local references, 
+          like: nameInput.value = "some text"
+          or:   nameInputRef.nativeElement.value = "some text"
+
+
+    rendering content between opening and closing tag (equivelent to props.children in React)
+    ng-content: is a directive, doesnt render a template
+        <app-component>
+            <p> a child paragraph of a component </p>
+        </app-component>
+        ----in side app-component template
+        <div>
+        ...
+        <ng-content></ng-content> // <p> will be rendered here
+        ...
+        </div>
