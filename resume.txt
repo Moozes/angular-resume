@@ -101,3 +101,22 @@ syntaxe
         <ng-content></ng-content> // <p> will be rendered here
         ...
         </div>
+
+
+    there are multiple lifecycle hooks (8)
+        they are executed in order constructor, ngOnInit, ...
+        you can access template in any of them using a local reference, but you wont get correct values untill ngAfterViewInit is ran
+        you can access content template (ie: children, ng-content) in any of them using a local reference, but you wont get correct values untill ngAfterContentInit is ran
+
+
+    accessing children template from a ts file
+        <div>
+            <h1>title</h1>
+            <app-custom-component>
+                <p #paragraph >this is a child paragraph</p>
+            </app-custom-component>
+        </div>
+        ---
+        we can access paragraph in app.component.ts using @ViewChild
+        but we cant do the same in custom-component.component.ts
+        for that we use @ContentChild("paragraph", {static: true})
