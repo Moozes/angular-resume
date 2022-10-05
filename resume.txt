@@ -27,6 +27,11 @@ syntaxe
         attribute directives
             [ngStyle]="{color: expression}"
             [ngClass]="{classname : boolean expression, 'class-name' : boolean expression}"
+            <div [ngSwitch]="value" >
+                <p *ngSwitchCase="5" >...</p>
+                <p *ngSwitchCase="10" >...</p>
+                <p *ngSwitchDefault >...</p>
+            </div>
         
         NOTES
             you cant use multiple structural directives in the same element
@@ -34,7 +39,7 @@ syntaxe
                     *ngFor="..."
                     *ngIf="..."
                 ></p>
-            in attribute directives, we are binding to a property on the directive which has the same name as the directive
+            in attribute directives, we are binding to a property on the directive which has the same name as the directive: ngClass, ngStyle, ngModel
 
 
     Directive VS Component
@@ -154,3 +159,41 @@ syntaxe
         ngOnInit(): void {
             this.renderer.setStyle(this.elRef.nativeElement, 'background-color', "red")
         }
+        
+
+        // listen to host events
+        @HostListener('mouseenter') mouseenter(event: Event) {
+            this.renderer.setStyle(this.elRef.nativeElement, 'background-color', "red")
+        }
+
+        //bind to host properties
+        @HostBinding('style.backgroundColor') backgroundColor = "transparent";
+        ...
+        method() {
+            this.backgroundColor = "red"
+        }
+
+
+        //define custom directive properties and bind to them
+        @Input() defaultColor = "trasnparent"
+        ---
+        <p directiveSelector [defaultColor]="'yellow'" ></p>
+
+        //cutome directive properties can have the same name as the directive, as in the case of ngClass, ngStyle...
+        @Input('directiveSelector') defaultColor = "transparent"
+        ---
+        <p [directiveSelector]="'yellow'" ></p>
+
+        //you can ommit the square brackets [] and single quotes '' if you are passing down a string and not a ts expression
+        <p directiveSelector defaultColor="yellow" ></p>
+        ---
+        only do this if it is clear that defaultColor is not a native <p> attribute
+
+    
+    structural directives behid the scenes
+        video 099
+        <p *ngIf="booealn expression" ></p>
+        ---
+        <ng-template [ngIf]="booealn expression">
+        <p></p>
+        </ng-template>
