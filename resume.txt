@@ -1,6 +1,7 @@
 CLI
     ng new my-app --no-strict
     ng g c component-name
+    ng g d attribute-directive-name
     ng serve / npm start
 
 syntaxe
@@ -20,12 +21,20 @@ syntaxe
         two way binding(event+property)     [(ngModel)]="value"
 
     pre defined directives
-        structural
+        structural directives
             *ngIf="boolean expression"
             *ngFor="let v of variable; let i = index"
-        property
+        attribute directives
             [ngStyle]="{color: expression}"
             [ngClass]="{classname : boolean expression, 'class-name' : boolean expression}"
+        
+        NOTES
+            you cant use multiple structural directives in the same element
+                <p
+                    *ngFor="..."
+                    *ngIf="..."
+                ></p>
+            in attribute directives, we are binding to a property on the directive which has the same name as the directive
 
 
     Directive VS Component
@@ -120,3 +129,28 @@ syntaxe
         we can access paragraph in app.component.ts using @ViewChild
         but we cant do the same in custom-component.component.ts
         for that we use @ContentChild("paragraph", {static: true})
+
+
+    basic attribute directive
+        @Directive({
+            selector: "[appBasicHeighlight]"
+        })
+        export class BasicHeighlightDirective implements OnInit {
+            constructor(private elementRef: ElementRef) {}
+
+            ngOnInit(): void {
+                // BAD PRACTISE!!!!, dont change dom with ref
+                this.elementRef.nativeElement.style.backgroundColor = "green"
+            }
+
+        }
+        ---
+        <p appBasicHeighlight >paragraph with green background</p>
+
+
+        //since changing dom directly is bad practise, we use (renderer: Renderer2) to change dom
+        constructor(private elRef: ElementRef, private renderer: Renderer2) { }
+
+        ngOnInit(): void {
+            this.renderer.setStyle(this.elRef.nativeElement, 'background-color', "red")
+        }
