@@ -136,7 +136,7 @@ syntaxe
         for that we use @ContentChild("paragraph", {static: true})
 
 
-    basic attribute directive
+    basic directive
         @Directive({
             selector: "[appBasicHeighlight]"
         })
@@ -190,10 +190,45 @@ syntaxe
         only do this if it is clear that defaultColor is not a native <p> attribute
 
     
-    structural directives behid the scenes
+    structural directives behind the scenes
         video 099
         <p *ngIf="booealn expression" ></p>
         ---
         <ng-template [ngIf]="booealn expression">
         <p></p>
         </ng-template>
+
+
+    
+    services
+        purpose of services: 
+            centrelize repeated logic
+            centrelize data (like a store in Redux)
+        
+        service is just a class
+            export class LoggingService {
+                logStatusChange(newStatus: string) {
+                    console.log('A server status changed, new status: ', newStatus)
+                }
+            }
+
+        usage in components
+            //provide it
+            @Component({
+                selector: 'app-account',
+                templateUrl: './account.component.html',
+                styleUrls: ['./account.component.css'],
+                providers: [LoggingService]
+            })
+            //then inject it in the constructor
+            constructor(private loggingService: LoggingService) {}
+            //then use it
+            method() {
+                this.loggingService.logStatusChange(...)
+            }
+
+        hierarchical
+            if provided in a component => all child components can inject it & use it
+                                       => all child components will receive the same instance
+            if provided in parent and child => child will receive a different instance (override) (not good for data services)
+            if provided in app.module.ts => all components AND services can intect and use it
