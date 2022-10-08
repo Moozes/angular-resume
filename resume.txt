@@ -307,3 +307,51 @@ syntaxe
             method() {
                 this.router.navigate(["servers"], {relativeTo: this.currentRoute})
             }
+
+        fetching route params
+            inject currentRoute: ActivatedRoute
+            ...
+            let var = this.currentRoute.snapshot.params.id
+
+        NOTE: 
+            we are in users/1
+            UsersComponent is rendered
+            UsersComponent has a link to Users/20
+            if you click on it, url changes to users/20
+            but angular wont reinitialized UsersComponent, because we are in it already
+            for that add this in ngOnInit
+                this.currentRoute.params.subscribe(
+                    (params) => this.user.id = params.id
+                )
+
+            when component gets destroyed the subscription will be stopped (usibscribed) automatically by angular IN THIS CASE ONLY
+
+        query params
+            using routerLink
+                [routerLink]="['/servers', 5, 'edit']" // /servers/5/edit
+                [queryParams]="{allowEdit: 1, good: 2}"// /servers/5/edit?allowEdit=1&good=2
+                fragment="loading" // /servers/5/edit?allowEdit=1&good=2#loading
+
+            programatically
+                inject router: Router
+                ...
+                method(id: string) {
+                    this.router.navigate(
+                        ["/servers", id, "edit"], 
+                        {
+                            queryParams: {allowEdit: 1}, 
+                            fragment: "loading"
+                        })
+                }
+
+            fetching query params
+                inject currentRoute: ActivatedRoute
+                ...
+                method() {
+                    this.currentRoute.snapshot.queryParams
+                    this.currentRoute.snapshot.fragment
+                    // if you update curent route params from inside this component
+                    this.currentRoute.queryParams.subscribe(...)
+                    this.currentRoute.fragment.subscribe(...)
+                    // these also will be cleaned by angular automatically
+                }
