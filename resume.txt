@@ -353,5 +353,5 @@ syntaxe
                     // if you update curent route params from inside this component
                     this.currentRoute.queryParams.subscribe(...)
                     this.currentRoute.fragment.subscribe(...)
-                    // these also will be cleaned by angular automatically
+                    // these also will be cleaned by angular automatically 
                 }
