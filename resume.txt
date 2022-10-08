@@ -232,3 +232,78 @@ syntaxe
                                        => all child components will receive the same instance
             if provided in parent and child => child will receive a different instance (override) (not good for data services)
             if provided in app.module.ts => all components AND services can intect and use it
+            NOTE (new optional syntaxe for providing services at highest level) (better performance)
+                @Injectable({providedIn: 'root'})
+                export class MyService {...}
+
+        injecting a service A into another service B
+            A need to be provided in app.module.ts (highest level)
+            B need to be decorated with @Injectable() (a good practise is to decorate all services with that)
+            injetc A in B's constructor
+            use it in B's methods
+
+        cross component communication (defining an event in a service)
+            SERVICE_A
+              statusUpdateEvent = new EventEmitter<string>()
+            COMPONENT_A (emits that event)
+              this.SERVICE_A.statusUpdateEvent.emit("data")
+            COMPONENT_B (subscribes to that event)
+              constructor(...) {
+                this.SERVICE_A.statusUpdateEvent.subscribe((data: string) => alert(data))
+            }
+
+
+
+    Routing
+        //in app.module.ts
+        const appRoutes: Routes = [
+            { path: "", component: HomeComponent },
+            { path: "users", component: UsersComponent },
+            { path: "servers", component: ServersComponent },
+        ]
+        ...
+        //register these routes
+        imports: [
+            BrowserModule,
+            FormsModule,
+            RouterModule.forRoot(appRoutes)
+        ],
+        //in app.component.ts
+        <app-header></app-header>
+        <router-outlet></router-outlet>
+
+
+        routerLink
+            <a routerLink="/">...</a>
+            <a [routerLink]="'/users'">...</a>
+            <a [routerLink]="['/servers']">...</a>
+
+        absolute vs relative paths
+            /users <--- absolute path
+
+            users  <--- relative paths
+            ./users
+            ../users
+
+        routerLinkActive="some-class"
+            gets current full path
+            if full path CONTAINS this link's path give it a class of "some-class"
+
+            [routerLinkActiveOptions]="{exact: true}" 
+            if full path EQUALS this link's path give it a class of "some-class"
+
+        navigate programatically
+            inject router: Router
+            ...
+            method() {
+                this.router.navigate(["/servers"])
+            }
+
+
+        navigate programatically relatively
+            inject router: Router
+            inject currentRoute: ActivatedRoute
+            ...
+            method() {
+                this.router.navigate(["servers"], {relativeTo: this.currentRoute})
+            }
