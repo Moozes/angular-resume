@@ -264,8 +264,7 @@ syntaxe
         ...
         //register these routes
         imports: [
-            BrowserModule,
-            FormsModule,
+            ...,
             RouterModule.forRoot(appRoutes)
         ],
         //in app.component.ts
@@ -318,7 +317,7 @@ syntaxe
             UsersComponent is rendered
             UsersComponent has a link to Users/20
             if you click on it, url changes to users/20
-            but angular wont reinitialized UsersComponent, because we are in it already
+            but angular wont reinitialized UsersComponent, because it is rendered already
             for that add this in ngOnInit
                 this.currentRoute.params.subscribe(
                     (params) => this.user.id = params.id
