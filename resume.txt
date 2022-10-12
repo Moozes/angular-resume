@@ -354,3 +354,128 @@ syntaxe
                     this.currentRoute.fragment.subscribe(...)
                     // these also will be cleaned by angular automatically 
                 }
+
+
+
+        nested routes
+            const appRoutes: Routes: [
+                ...,
+                {
+                    path: 'users',
+                    component: UsersComponent,
+                    children: [
+                    { path: ':id/:name', component: UserComponent }
+                    ],
+                },
+            ]
+            ---
+            //in UsersComponent
+            <router-outlet></router-outlet>
+
+
+        keep current query params when navigating to another route
+            this.router.navigate(["/servers"], {queryParamsHandling: "preserve"})
+            --OR--
+            this.router.navigate(["/servers"], {queryParamsHandling: "merge", queryParams: some new params})
+
+        wildcard routes (not found)
+            appRoutes: Routes = [
+                ...
+                {path: "**", component: PageNotFoundComponent}
+            ]
+
+        redirects
+            appRoutes: Routes = [
+                ...
+                {path: "/not-found", components: PageNotFoundComponent}
+                {path: "**", redirectTo: "/not-found"}
+            ]
+
+        
+        angular modules
+            are angular way of seperation (like typescript modules)
+            you need to know that they are not the same (ts modules and angular modules)
+            they are decorated with NgModule({import: [other needed modules]}, export: [what to expose to the outside])
+
+        puting routes in own angular module
+            const appRoutes: Routes = [
+                { path: '', component: HomeComponent },
+                ...
+            ];
+
+            @NgModule({
+                imports: [
+                    RouterModule.forRoot(appRoutes)
+                ],
+                exports: [
+                    RouterModule
+                ]
+            })
+            export class AppRoutingModule {
+
+            }
+            ---
+            in app.module.ts
+              imports: [
+                ...
+                AppRoutingModule
+            ],
+
+
+    Route entering protection
+        ----is authenticated ? example----
+        create auth-guard.service file: class AuthGuard implements CanActivate
+        impliment canActivate method: return boolean | promise<boolean> | observable<boolean>
+            which means it can run synchrone or asynch (make a request to see allowed to enter)
+
+        create auth.service file: has loggedin state
+        inject it in auth-guard.service to use it in canActivate
+
+        add it to routes
+        [
+            ...
+            {path:"..." canActivate: [guard1, guard2, ...], component: ...}
+            ...
+        ]
+
+
+    Route leaving protection
+        ----are form's changes saved ? example----
+        complex example video 149 max's course
+
+
+    passing static data to routes (video 150)
+        [
+            ...
+            {path: "..", component: .., data: {message: "page not found", message2: "awsome"}}
+        ]
+
+        inside that component
+        inject ActivatedRoute
+        this.activatedRoute.snapshot.data
+        --or--
+        this.activatedRoute.data.subscribe(data: Data => use data)
+
+
+    passing dynamic data to routes (video 151)
+    ---load single server before accessing this route---
+    NOTE: this also can be done in ngOnInit() of that component
+
+
+    Observables
+        there are observables and observers
+            observables: are events/pieces of data that gets emitted asynchronously
+                         events/data could be: data, error, comlete
+            observers: is where our code goes to respond to data/error/complete
+            NOTE: some observables doesnt have to complete (like button events)
+                  some do complete like http requests
+                  
+        clean subscriptions
+            sub: Subscription
+            ngOnInit() {
+                this.sub = someObservable.subscribe((...) => {...})
+            }
+            ngOnDestroy() {
+                this.sub.unsubscribe()
+            }
+
