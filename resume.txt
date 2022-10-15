@@ -243,6 +243,7 @@ syntaxe
             use it in B's methods
 
         cross component communication (defining an event in a service)
+        ---  THIS IS NOT RECOMENDED USE SUBJECTS INSTEAD ---
             SERVICE_A
               statusUpdateEvent = new EventEmitter<string>()
             COMPONENT_A (emits that event)
@@ -251,6 +252,14 @@ syntaxe
               constructor(...) {
                 this.SERVICE_A.statusUpdateEvent.subscribe((data: string) => alert(data))
             }
+
+        NOTE: 
+            if you define an array or object (ie: REFRENCES) in a service and you pass it to a component
+                that component will update template when that variable changes because it is pointing to the same variable  
+            on the other hand
+            if you define a simple type (ie : NOT A REFERENCE, number, string, boolean..) and you pass it to a component
+                that component template wont update when value changes, for that you need to make a Subject and subscribe to it
+                template wont update because ngOnInit runs only once
 
 
 
@@ -463,13 +472,21 @@ syntaxe
 
 
     Observables
+        RXJS: it is third party library (managed by angular) and heavily used by angular, 
+            it gives us this concept of observables 
+
+        ------------------
         there are observables and observers
             observables: are events/pieces of data that gets emitted asynchronously
                          events/data could be: data, error, comlete
             observers: is where our code goes to respond to data/error/complete
             NOTE: some observables doesnt have to complete (like button events)
                   some do complete like http requests
-                  
+        ------OR----------
+        there are observables and observers and operators in bitween that changes data before getting to observer
+            in this case you need to subscribe to piped observable and not observable it self 
+            as shown below
+
         clean subscriptions
             sub: Subscription
             ngOnInit() {
@@ -479,3 +496,50 @@ syntaxe
                 this.sub.unsubscribe()
             }
 
+        create custom observable
+            ngOnInit() {
+                // this.sub1 = interval(1000).subscribe(count => console.log(count))
+                const customObservable = new Observable((observer) => {
+                let count = 0;
+                setInterval(() => {
+                    observer.next(count); //emit next data
+                    if(count >= 3) observer.error("ge 3!"); // emit error and stop observable, no need to clean
+                    if(count === 2) observer.complete(); // emit complete and stop observable, no need to clean
+                    count++;
+                }, 1000);
+                });
+
+                //only pass count number > 0
+                // add 'round' string before every count number
+                const customPipedObservable = customObservable.pipe(
+                    filter((data: number) => data > 0),
+                    map((data: number) => 'round ' + (data + 1))
+                );
+
+                this.sub1 = customPipedObservable.subscribe(
+                {
+                    next: (data) => console.log(data),
+                    error: (data) => console.log(data),
+                    complete: () => console.log("complete"),
+                }
+                );
+            }
+
+            NOTE: YOU RARELY CREATE YOUR OWN OBSERVABLES, you usualy use predefined ones 
+                like: angular currentRoute.params, or some rxjs observables, 
+                just like promises you rarely create them manually
+
+        
+        Subject vs EventEmitter
+            use Subject in a service for cross component communication (subscribe and clean subscription)
+            use EventEmitter for @Output()
+            NOTE: an added advantage here is you can use operators (pipes) on your subject because it is a kind of observable 
+
+            Subject vs Observable
+                Observable are emited from inside its definition (so this is for passive code like http request)
+                Subject can be emitted from outside, calling Subject.next(some data) (so this is for active code, if you want to emit from outside manually)
+
+        
+        
+    Forms
+        
