@@ -193,7 +193,7 @@ syntaxe
     structural directives behind the scenes
         video 099
         <p *ngIf="booealn expression" ></p>
-        ---
+        ---equivelant to--- 
         <ng-template [ngIf]="booealn expression">
         <p></p>
         </ng-template>

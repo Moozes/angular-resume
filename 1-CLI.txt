@@ -1,0 +1,5 @@
+CLI
+    ng new my-app --no-strict
+    ng g c component-name
+    ng g d attribute-directive-name
+    ng serve / npm start

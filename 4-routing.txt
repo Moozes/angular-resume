@@ -1,0 +1,206 @@
+    Routing
+        //in app.module.ts
+        const appRoutes: Routes = [
+            { path: "", component: HomeComponent },
+            { path: "users", component: UsersComponent },
+            { path: "servers", component: ServersComponent },
+        ]
+        ...
+        //register these routes
+        imports: [
+            ...,
+            RouterModule.forRoot(appRoutes)
+        ],
+        //in app.component.ts
+        <app-header></app-header>
+        <router-outlet></router-outlet>
+
+
+        routerLink
+            <a routerLink="/">...</a>
+            <a [routerLink]="'/users'">...</a>
+            <a [routerLink]="['/servers']">...</a>
+
+        absolute vs relative paths
+            /users <--- absolute path
+
+            users  <--- relative paths
+            ./users
+            ../users
+
+        routerLinkActive="some-class"
+            gets current full path
+            if full path CONTAINS this link's path give it a class of "some-class"
+
+            [routerLinkActiveOptions]="{exact: true}" 
+            if full path EQUALS this link's path give it a class of "some-class"
+
+        navigate programatically
+            inject router: Router
+            ...
+            method() {
+                this.router.navigate(["/servers"])
+            }
+
+
+        navigate programatically relatively
+            inject router: Router
+            inject currentRoute: ActivatedRoute
+            ...
+            method() {
+                this.router.navigate(["servers"], {relativeTo: this.currentRoute})
+            }
+
+        fetching route params
+            inject currentRoute: ActivatedRoute
+            ...
+            let var = this.currentRoute.snapshot.params.id
+
+        NOTE: 
+            we are in users/1
+            UsersComponent is rendered
+            UsersComponent has a link to Users/20
+            if you click on it, url changes to users/20
+            but angular wont reinitialized UsersComponent, because it is rendered already
+            for that add this in ngOnInit
+                this.currentRoute.params.subscribe(
+                    (params) => this.user.id = params.id
+                )
+
+            when component gets destroyed the subscription will be stopped (usibscribed) automatically by angular IN THIS CASE ONLY
+
+        query params
+            using routerLink
+                [routerLink]="['/servers', 5, 'edit']" // /servers/5/edit
+                [queryParams]="{allowEdit: 1, good: 2}"// /servers/5/edit?allowEdit=1&good=2
+                fragment="loading" // /servers/5/edit?allowEdit=1&good=2#loading
+
+            programatically
+                inject router: Router
+                ...
+                method(id: string) {
+                    this.router.navigate(
+                        ["/servers", id, "edit"], 
+                        {
+                            queryParams: {allowEdit: 1}, 
+                            fragment: "loading"
+                        })
+                }
+
+            fetching query params
+                inject currentRoute: ActivatedRoute
+                ...
+                method() {
+                    this.currentRoute.snapshot.queryParams
+                    this.currentRoute.snapshot.fragment
+                    // if you update curent route params from inside this component
+                    this.currentRoute.queryParams.subscribe(...)
+                    this.currentRoute.fragment.subscribe(...)
+                    // these also will be cleaned by angular automatically 
+                }
+
+
+
+        nested routes
+            const appRoutes: Routes: [
+                ...,
+                {
+                    path: 'users',
+                    component: UsersComponent,
+                    children: [
+                    { path: ':id/:name', component: UserComponent }
+                    ],
+                },
+            ]
+            ---
+            //in UsersComponent
+            <router-outlet></router-outlet>
+
+
+        keep current query params when navigating to another route
+            this.router.navigate(["/servers"], {queryParamsHandling: "preserve"})
+            --OR--
+            this.router.navigate(["/servers"], {queryParamsHandling: "merge", queryParams: some new params})
+
+        wildcard routes (not found)
+            appRoutes: Routes = [
+                ...
+                {path: "**", component: PageNotFoundComponent}
+            ]
+
+        redirects
+            appRoutes: Routes = [
+                ...
+                {path: "/not-found", components: PageNotFoundComponent}
+                {path: "**", redirectTo: "/not-found"}
+            ]
+
+        
+        angular modules
+            are angular way of seperation (like typescript modules)
+            you need to know that they are not the same (ts modules and angular modules)
+            they are decorated with NgModule({import: [other needed modules]}, export: [what to expose to the outside])
+
+        puting routes in own angular module
+            const appRoutes: Routes = [
+                { path: '', component: HomeComponent },
+                ...
+            ];
+
+            @NgModule({
+                imports: [
+                    RouterModule.forRoot(appRoutes)
+                ],
+                exports: [
+                    RouterModule
+                ]
+            })
+            export class AppRoutingModule {
+
+            }
+            ---
+            in app.module.ts
+              imports: [
+                ...
+                AppRoutingModule
+            ],
+
+
+    Route entering protection
+        ----is authenticated ? example----
+        create auth-guard.service file: class AuthGuard implements CanActivate
+        impliment canActivate method: return boolean | promise<boolean> | observable<boolean>
+            which means it can run synchrone or asynch (make a request to see allowed to enter)
+
+        create auth.service file: has loggedin state
+        inject it in auth-guard.service to use it in canActivate
+
+        add it to routes
+        [
+            ...
+            {path:"..." canActivate: [guard1, guard2, ...], component: ...}
+            ...
+        ]
+
+
+    Route leaving protection
+        ----are form's changes saved ? example----
+        complex example video 149 max's course
+
+
+    passing static data to routes (video 150)
+        [
+            ...
+            {path: "..", component: .., data: {message: "page not found", message2: "awsome"}}
+        ]
+
+        inside that component
+        inject ActivatedRoute
+        this.activatedRoute.snapshot.data
+        --or--
+        this.activatedRoute.data.subscribe(data: Data => use data)
+
+
+    passing dynamic data to routes (video 151)
+    ---load single server before accessing this route---
+    NOTE: this also can be done in ngOnInit() of that component

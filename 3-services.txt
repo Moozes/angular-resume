@@ -1,0 +1,62 @@
+    services
+        purpose of services: 
+            centrelize repeated logic
+            centrelize data (like a store in Redux)
+        
+        service is just a class
+            export class LoggingService {
+                logStatusChange(newStatus: string) {
+                    console.log('A server status changed, new status: ', newStatus)
+                }
+            }
+
+        usage in components
+            //provide it
+            @Component({
+                selector: 'app-account',
+                templateUrl: './account.component.html',
+                styleUrls: ['./account.component.css'],
+                providers: [LoggingService]
+            })
+            //then inject it in the constructor
+            constructor(private loggingService: LoggingService) {}
+            //then use it
+            method() {
+                this.loggingService.logStatusChange(...)
+            }
+
+        hierarchical
+            if provided in a component => all child components can inject it & use it
+                                       => all child components will receive the same instance
+            if provided in parent and child => child will receive a different instance (override) (not good for data services)
+            if provided in app.module.ts => all components AND services can intect and use it
+            NOTE (new optional syntaxe for providing services at highest level) (better performance)
+                @Injectable({providedIn: 'root'})
+                export class MyService {...}
+
+        injecting a service A into another service B
+            A need to be provided in app.module.ts (highest level)
+            B need to be decorated with @Injectable() (a good practise is to decorate all services with that)
+            injetc A in B's constructor
+            use it in B's methods
+
+        cross component communication (defining an event in a service)
+        ---  THIS IS NOT RECOMENDED USE SUBJECTS INSTEAD ---
+            SERVICE_A
+              statusUpdateEvent = new EventEmitter<string>()
+            COMPONENT_A (emits that event)
+              this.SERVICE_A.statusUpdateEvent.emit("data")
+            COMPONENT_B (subscribes to that event)
+              constructor(...) {
+                this.SERVICE_A.statusUpdateEvent.subscribe((data: string) => alert(data))
+            }
+
+        NOTE: 
+            if you define an array or object (ie: REFRENCES) in a service and you pass it to a component
+                that component will update template when that variable changes because it is pointing to the same variable  
+            on the other hand
+            if you define a simple type (ie : NOT A REFERENCE, number, string, boolean..) and you pass it to a component
+                that component template wont update when value changes, for that you need to make a Subject and subscribe to it
+                template wont update because ngOnInit runs only once
+
+
