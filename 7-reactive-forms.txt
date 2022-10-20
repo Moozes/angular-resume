@@ -1,0 +1,171 @@
+NOTE: NgForm is a wrapper to FormGroup, so it is basically the same under the hood
+difine the form
+    signupForm: FormGroup;
+
+    ngOnInit() {
+        this.signupForm = new FormGroup({
+            username: new FormControl(null),
+            email: new FormControl(null),
+            gender: new FormControl(this.genders[0])
+        })
+    }
+
+link the form to template
+      <form [formGroup]="signupForm">
+      ...
+      <input
+      ...
+      formControlName="username"
+      />
+
+submitting form
+    <form ... (ngSubmit)="onSubmit()" >
+    ---
+    onSubmit() {
+        console.log(this.signupForm)
+    }
+
+validation
+    ngOnInit() {
+        this.signupForm = new FormGroup({
+            username: new FormControl(null, Validators.required),// single validator
+            email: new FormControl(null, [Validators.required, Validators.email]),// array of validators
+            gender: new FormControl(this.genders[0])
+        })
+    }
+
+    NOTE: dont call validators just pass the reference
+
+
+    validation error message
+        //for single control
+        <p *ngIf="!signupForm.get('username').valid && signupForm.get('username').touched"> Username is required </p>
+        //for overall form
+        <p *ngIf="!signupForm.valid && signupForm.touched"> Form is invalid </p>
+
+
+grouping controls
+    ngOnInit() {
+        this.signupForm = new FormGroup({
+            userData: new FormGroup({
+                username: new FormControl(null, Validators.required),
+                email: new FormControl(null, [Validators.required, Validators.email]),
+            }),
+            gender: new FormControl(this.genders[0])
+        })
+    }
+
+    synchronizing in template
+        <div formGroupName="userData">
+            <input formControlName="username" />
+            <input formControlName="email" />
+        </div>
+    
+    validation error message
+        //for single control
+        <p *ngIf="!signupForm.get('userData.username').valid && signupForm.get('userData.username').touched"> Username is required </p>
+
+
+FormArray
+    ngOnInit() {
+        ...
+              hobbies: new FormArray([])
+    }
+
+    // or you can use a method not a getter
+    get hobbyControls() {
+        return (<FormArray>this.signupForm.get('hobbies')).controls // <--- need explicit casting, and (this doesnt work in template also)
+    }
+
+    <div formArrayName="hobbies" >
+        <div 
+          *ngFor="let hobbyControl of hobbyControls; let i = index">
+          <input type="text" class="form-control" [formControlName]="i">
+        </div>
+    </div>
+
+
+    add controls dynamically 
+    onAddHobby() {
+        const newControl = new FormControl(null, Validators.required);
+        (<FormArray>this.signupForm.get('hobbies')).push(newControl); // <--- need explicit casting
+    }
+       
+
+
+custom validators
+    forbidenNames = ['moussa', 'admin']
+
+    ngOnInit() {
+        this.signupForm = new FormGroup({
+            ...
+            username: new FormControl(null, [Validators.required, this.forbidenNamesValidator.bind(this)]), // bind if you use this inside the validator function
+            ...
+        })
+    }
+
+    forbidenNamesValidator(control: FormControl): {[s: string]: boolean} {
+        if(this.forbidenNames.indexOf(control.value) !== -1) {
+            return {'nameIsInvalid': true};
+        }
+        return null
+    }
+
+
+custom validation error message depending on the error object in each control
+            <p
+                *ngIf="!signupForm.get('userData.username').valid && signupForm.get('userData.username').touched"
+            >
+              <span *ngIf="signupForm.get('userData.username').errors.required">Username is required</span>
+              <span *ngIf="signupForm.get('userData.username').errors.nameIsInvalid">This name is forbidden</span>
+            </p>
+
+    
+
+custom async validators
+    ngOnInit() {
+        this.signupForm = new FormGroup({
+            ...
+            email: new FormControl(null, [Validators.required, Validators.email], this.forbiddenEmails),
+            ...
+        })
+    }
+
+
+    forbiddenEmails(control: FormControl): Promise<any> | Observable<any> {
+        return new Promise((resolve, reject) => {
+        setTimeout(() => {
+            if(control.value === "test@test.com") resolve({emailIsInvalid: true});
+            else resolve(null)
+        },1500)
+        })
+    }
+
+
+2 Observables that might be useful
+    ngOnInit() {
+        this.signupForm = ...
+
+        this.signupForm.valueChanges.subscribe(
+        (values) => console.log(values)
+        )
+
+        // VALID, INVALID, PENDING
+        this.signupForm.statusChanges.subscribe(
+        (status) => console.log(status)
+        )
+    }
+
+    NOTE: they exist on the whole form and on each control also
+    for eg:
+        this.signupForm.controls.userData.controls.username.valueChanges.subscribe(...)
+        this.signupForm.controls.userData.controls.username.statusChanges.subscribe(...)
+
+
+this.signupForm.setValue() 
+this.signupForm.patchValue()
+this.signupForm.reset()
+...
+    they also exist on reactive form
+
+    as we have said, NgForm is just a wrapper on top of FormGroup

@@ -1,0 +1,84 @@
+pipes are builtin into angular
+they tranform output
+they are usually used when displaying information (ie: template)
+remeber the problem you had on GAFA project (capitalise, uppercase ...)
+
+examples
+    {{ name | uppercase }}
+    {{ joinDate | date }}
+
+passing params
+    {{ joinDate | date:"fullDate":"anotherParam":"thirdParam" }}
+
+chaining pipes
+    {{ joinDate | date | uppercase }}
+
+    NOTE: pipes are parsed from left to right!, so this wont work
+    {{ joinDate | uppercase | date  }}
+
+
+create custom pipes 
+    in shorten.pipe.ts
+        @Pipe({
+            name: "shorten"
+        })
+        export class ShortenPipe implements PipeTransform {
+            transform(value: any, limit: number, anotherParam: any, ...args: any[]) {
+                let result = value.slice(0, limit)
+                if(value.length >= limit) result += "..." 
+                return result
+            }
+        }
+
+    add ShortenPipe to app.module declarations array
+
+    use it in template
+        {{ name | shorten }}
+
+
+
+advanced (filter a list)
+    export class FilterPipe implements PipeTransform {
+        transform(value: any, filterStatus: string) {
+            if(value.length === 0 || filterStatus === "") return value;
+            return value.filter(item => item.status === filterStatus)
+        }
+    }
+
+    //use in template
+    <input type="text" [(ngModel)]="filterSatus" >
+    ...
+    *ngFor="let server of servers | filter:filterSatus"
+    ...
+
+
+
+    pure and impure
+        when input value is : stable for eg
+        and you click add server button
+        the filter value changes (a new server is added)
+        but angular doesnt re-run pipe by default for performance reasons
+        to make it work add this 
+            @Pipe({
+                name: 'filter',
+                pure: false// <--- add this
+            }) 
+        
+        in other words pipes dont run when Objects and Arrays change
+        NOTE: pipe re-runs when its params change, second param, third param...
+
+
+async pipe
+    in app.component.ts
+    appStatus = new Promise((res, rej) => {
+        return setTimeout(() => {
+            res("Offline")
+        }, 2000)
+    })
+
+    in template
+    {{ appStatus }} will render [object]
+
+    {{ appStatus | async }}
+
+    NOTE: this will also work with observables (it will subscribe automatically)

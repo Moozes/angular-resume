@@ -1,7 +1,13 @@
     Forms
         Template driven VS reactive forms
-            TD: you write the template and angular infer the object of the form, heavy work is done on template
-            reactive: you write TS code + template + and link them together (more complex, but gives more control) 
+            TD: 
+                you write the template and angular infer the object of the form, 
+                heavy work is done on template
+                needs FormsModule import in app.module.ts
+            reactive: 
+                form is created programatically 
+                you write TS code + template + and link them together (more complex, but gives more control) 
+                needs ReactiveFormsModule in app.module.ts
 
         Template driven
             need a form tag in template
@@ -45,6 +51,13 @@
                     }
                 submit button disabled
                     [disabled]="!f.valid"
+                global form validation error message condition
+                    *ngIf="f.submitted && !f.valid" class="error-message"
+                    ---
+                    onSubmit(f: NgForm) {
+                        // to not lose the submitted status
+                        if(f.valid) f.resetForm()
+                    }
 
             defualt values usgin property binding
                 <input
@@ -118,3 +131,12 @@
 
                 this is similar to formObject.setvalue( {...} )
                 but setvalue doesnt reset touched, dirty, valid, ...etc
+
+                --also--
+                formObject.resetForm()
+                --or--
+                formObject.resetForm( {...} ) // to reset to specific values
+
+                reset vs resetForm: resetForm also resets submitted status to false
+
+            
