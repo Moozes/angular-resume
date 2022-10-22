@@ -1,0 +1,120 @@
+In app.module.ts    
+    add HttpClientModule to imports array
+
+inject http: HttpClient, where you want to use it
+
+
+POST requests
+    NOTE: 
+        REQUESTS ARE OBSERVABLES
+        IF YOU DONT SUBSCRIBE REQUEST WONT BE SENT <------- important
+        no need to clean subscription, angular will handle this, and this is an observable that will complete (so no cleaning nedded)
+
+    onCreatePost(postData: { title: string; content: string }) {
+        // Send Http request
+        this.http.post(
+            'https://angular-max-course-1df1d-default-rtdb.firebaseio.com/posts.json',
+            postData
+        ).subscribe(responseData =>  {console.log(responseData)})
+    }
+
+
+GET requests
+    this.http.get('https://angular-max-course-1df1d-default-rtdb.firebaseio.com/posts.json')
+    .subscribe(posts => console.log(posts))
+
+
+Observable operators
+    in GET example we get {key1: {title, content}, key2: {title, content}}
+    we want to trnasform it to an array of posts  
+
+    this.http.get('https://angular-max-course-1df1d-default-rtdb.firebaseio.com/posts.json')
+    .pipe(map(responseData => {
+      const postsArray = []
+      for(let key in responseData) { // loop through keys
+        if(responseData.hasOwnProperty(key)) { // check if key exists to not access prototype of object
+          postsArray.push({id: key, ...responseData[key]})
+        }
+      }
+      return postsArray
+    }))
+    .subscribe(posts => console.log(posts))
+
+
+Outsourcing http requests to a service is a best practice
+    for eg: you can put GET posts in a service method
+        method() {
+            return this.http.get(...)
+        }
+
+        then subscribe to it in the component if it needs the response, otherwise subscribe in the service
+            method2() {
+                isLoading = true
+                this.postService.method().subscribe(() => {
+                    ...
+                    isLoading = false
+                }})
+            }
+
+
+Typing requests
+    this.http.get<{name: string}[]>()
+    this.http.post<{name: string}>()
+
+
+
+
+Handlign errors 
+    METHOD 1:
+        //the subscribe can be in service or in component
+        this.http.method().subscribe({
+            next: () => {},
+            error: (error) => {
+                console.log(error)
+            },
+        })
+
+    METHOD 2: if you want access error in multiple components
+        forward an error using a subject in our service
+        //in service
+        method() {
+            this.http.get()
+            .subscribe({next: ..., error: (error) => this.errorSubject.next(error)})
+        }
+
+        //in component ngOnInit
+        this.service.subscribe(error => console.log(error))
+        //dont forget to clean subscription
+
+    METHOD 3: if you have a generic error handling task you want to execute like: send error to server analytics, log error in database...
+    there is catchError operator
+    this.http.get()
+    .pipe(catchError(error) => {
+        // send to server analytics for example
+        // NOW you definitly need to pass that error so it reaches subscribe
+        return throwError(error) // imported from rxjs, it yields an observable
+    })
+
+
+
+Setting headers
+    the last argument of each method
+    this.http.METHOD(
+        ...,
+        {
+            headers: new HttpHeaders({"custom-header": "hello"})
+        }
+    )
+
+
+Setting params
+    NOTE: you can add these directly to the url
+    // it is immutable that is why we need to override it 
+    let searchParams = new HttpParams().append("print", "pretty")
+    searchParams = searchParams.append("custom", "key")
+    this.http.METHOD(
+        ...,
+        {
+            params: searchParams
+        }
+    )

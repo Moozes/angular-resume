@@ -9,6 +9,8 @@
             observers: is where our code goes to respond to data/error/complete
             NOTE: some observables doesnt have to complete (like button events)
                   some do complete like http requests
+                  when an observable emits an error the error function will execute, BUT complete function wont execute
+                    so it is not like : .then().catch().finaly() syntax
         ------OR----------
         there are observables and observers and operators in bitween that changes data before getting to observer
             in this case you need to subscribe to piped observable and not observable it self 
