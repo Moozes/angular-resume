@@ -118,3 +118,92 @@ Setting params
             params: searchParams
         }
     )
+
+
+Setting what to observe // video 269
+    NOTE: body -included in-> response -included in-> event (event has everything)
+    this.http.METHOD(
+        ...,
+        {
+            observe: "body" // default 
+                     or "response" // the whole response object
+                     or "events" // event.type sent, response, uploadProgress
+        }
+    ).subscribe()
+
+
+Setting responseType
+    this.http.METHOD(
+        ...,
+        {
+            responseType: "json" default or "text" or "blob" ...
+        }
+    ).subscribe()
+
+
+Interceptors
+    intercept requests and add some settings to them
+    for eg: intercept all requests and add an authorization header
+
+    export class AuthInterceptorService implements HttpInterceptor {
+        intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
+            console.log("request is intercepted")
+            return next.handle(req) // need to return this to let request continue
+        }
+    }
+
+    they are provided in a special way in app.module.ts
+    providers: [
+        {
+            provide: HTTP_INTERCEPTORS, // treat this as an interceptor service
+            useClass: AuthInterceptorService, // the service to use
+            multi: true, // dont replace existing interceptors with this interceptor, there could be more then one interceptor
+        }
+    ],
+
+    that is it, it will be applied to all requests
+
+    you can control which request it is applied to using req param
+        if(req.url === "...")
+            // ...
+        else // ...
+
+
+    exmaple: adding an auth header for all requests
+        NOTE: req object is immutable so you need to clone it and return a new req object
+
+        export class AuthInterceptorService implements HttpInterceptor {
+        intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
+                console.log("request is intercepted")
+                const modifiedRequest = req.clone({headers: req.headers.append('Auth', 'xyz')})
+                return next.handle(modifiedRequest)
+            }
+        }
+
+
+    intercept responses: by subscribing
+        return next.handle(modifiedRequest).pipe(tap(event => {
+            if(event.type === HttpEventType.Response)
+                console.log(event.body)
+        }))
+
+        NOTE: tap operator, doesnt change data like map
+
+
+
+
+    Multiple interceptors
+        NOTE: the order matters, they are executed in order 
+        providers: [
+            {
+                provide: HTTP_INTERCEPTORS, 
+                useClass: AuthInterceptorService,
+                multi: true, 
+            },
+            {
+                provide: HTTP_INTERCEPTORS, 
+                useClass: LoggingInterceptorService,
+                multi: true, 
+            },
+        ],
+
