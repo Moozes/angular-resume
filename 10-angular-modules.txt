@@ -1,0 +1,58 @@
+angular modules are NOT JS modules
+    angular modules are a way to bundle different part of your app together (components, services, directives, pipes..)
+    
+we use modules to 
+    split code, have leaner elements, maintaine code
+    inhance performance WHEN USING lazy loading 
+    
+different arrays
+    declarations: different part declared in a module
+    providers: services that are provided globally in that module
+    imports: import other modules to use their features
+    boorstrap: the root component, the starting point for your app, usually there is only one
+    exports: stuff exposed by a module to be imported in another module
+        example: in module A exports: [A1, A2]
+        in module B imports: [A] // this means we are importing A1 and A2
+
+angular modules work independently
+    components declared in a module can only be used in that module
+
+
+
+you can even give every module a routingModule
+    AppModule --> AppRoutingModule
+    RecipiesModule --> RecipiesRoutingModule // in here we use RouterModule.forChild(routes)
+
+    in AppModule, imports: [AppRoutingModule, RecipiesModule]
+    in RecipiesModule, imports: [RecipiesRoutingModule] // no need to export it
+
+    since we ve split routing, all components of RecipiesModule are used internally, they are loaded via RecipiesRoutingModule and not AppRoutingModule, so we can remove exports array from RecipiesModule (no need to export them)
+
+
+Performance inhancing (using lazy loading)
+    lazy loading lets you load modules when you need them, and not load every thing from the start
+    which means at the start we only download needed code (modules), and when ever we access other pages/features we download them
+    so the app will have a small starting time 
+
+
+IMPORTANT NOTES
+    Module A imports Module B
+    Module A will have access to all stuff imported by module B, componentes, directives ...
+    Module B wont have access to other modules imported by A
+    if Module B needs other modules he needs to import them him self
+
+    some exceptions
+        BrowserModule: provides ngFor, ngIf, but it can only be imported once in AppModule because it does some general app stuff
+            instead import CommonModule to have access to ngFor, ngIf in other modules
+        in app module import AppRoutingModule, but in other modules import RouterModule
+
+    you can declare components, directives, pipes only in one module
+        if you want to use them in multiple modules, declare them in a shared modules, export them and import that shared module
+
+    Services are special
+        when using @Injectable({providedIn: "root"})
+        there is no need to import them or export them from any module
+
+        when using providers array in AppModule and you want to make your AppModule leaner
+        create CoreModule which only has providers array with those services then import that module in AppModule only and not any other module, and those services will be provided application wide
+

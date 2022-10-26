@@ -12,7 +12,7 @@
                   when an observable emits an error the error function will execute, BUT complete function wont execute
                     so it is not like : .then().catch().finaly() syntax
         ------OR----------
-        there are observables and observers and operators in bitween that changes data before getting to observer
+        there are observables and observers and operators in bitween, that changes data before getting to observer
             in this case you need to subscribe to piped observable and not observable it self 
             as shown below
 
@@ -68,4 +68,24 @@
                 Observable are emited from inside its definition (so this is for passive code like http request)
                 Subject can be emitted from outside, calling Subject.next(some data) (so this is for active code, if you want to emit from outside manually)
 
-        
+
+        Subject vs BehaviorSubject
+            A BehaviorSubject holds one value. When it is subscribed it emits the value immediately. A Subject doesn't hold a value.
+
+
+        Operators
+            map
+            tap
+            take(x) listen for x events then unsubscribe
+            exhaustMap(data => return a new Observable): 
+                this will change what we subscribe to
+                use this when an observable relies on the result of another observable
+                example: 
+                    someObservable
+                    .pipe(
+                        take(1),
+                        exhaustMap(data-from-firt-observable => return anotherObservable),
+                        map(data-of-second-observable => ...)
+                    )
+                    .subscribe(data-of-second-observable => ...)
+            

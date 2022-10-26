@@ -183,6 +183,29 @@
         ]
 
 
+        real worl example
+            @Injectable({ providedIn: 'root' })
+            export class AuthGuard implements CanActivate {
+            constructor(private authService: AuthService, private router: Router) {}
+
+            canActivate(
+                route: ActivatedRouteSnapshot,
+                state: RouterStateSnapshot
+            ): boolean |UrlTree | Observable<boolean |UrlTree> | Promise<boolean |UrlTree> {
+                // behaviorSubject, so it laready has a value
+                return this.authService.user.pipe( 
+                    take(1), // subscribe for onetime only
+                    map((user) => {// change observable result to boolean, or redirect if false using url tree
+                        const isAuth = !!user;
+                        if(isAuth) 
+                            return true
+                        return this.router.createUrlTree(['/auth'])
+                    })
+                );
+            }
+            }
+
+
     Route leaving protection
         ----are form's changes saved ? example----
         complex example video 149 max's course
@@ -204,3 +227,24 @@
     passing dynamic data to routes (video 151)
     ---load single server before accessing this route---
     NOTE: this also can be done in ngOnInit() of that component
+        a resolver is used to execute some code before a route is entered 
+
+        @Injectable({providedIn: "root"})
+        export class RecipiesResolverService implements Resolve<Recipe[]> {
+            constructor(private dataStorageService: DataStorageService, private recipiesService: RecipiesService) {}
+
+            resolve(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): Recipe[] | Observable<Recipe[]> | Promise<Recipe[]> {
+                const recipies = this.recipiesService.getRecipies()
+                if(recipies.length !== 0) return recipies;
+                return this.dataStorageService.fetchRecipies()
+            }
+        }
+
+        in routing module
+             {path: "recipies", component: RecipiesComponent, resolve: [RecipiesResolverService] ,children ..}
+
+        
+        this resolver will fetch data from server before we access "recipies" route
+        NOTE: 
+            we do not subscribe to fetchRecipies() because the resolver will subscribe in our place
+            we can load recipies in ngOnInit but you will load template before you fetch data, so you will have errors like cant access imagePath of undefined, recipies is undefined, not iterable ...etc, and you cant use await because angular http is observable and not promise
