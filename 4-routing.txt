@@ -34,6 +34,7 @@
 
             [routerLinkActiveOptions]="{exact: true}" 
             if full path EQUALS this link's path give it a class of "some-class"
+            example: "/" path will always receive class if we dont use this
 
         navigate programatically
             inject router: Router
@@ -67,7 +68,7 @@
                     (params) => this.user.id = params.id
                 )
 
-            when component gets destroyed the subscription will be stopped (usibscribed) automatically by angular IN THIS CASE ONLY
+            when component gets destroyed the subscription will be stopped (usibscribed) automatically by angular IN THIS CASE ONLY (when you use observables defined by angular)
 
         query params
             using routerLink
@@ -224,7 +225,7 @@
         this.activatedRoute.data.subscribe(data: Data => use data)
 
 
-    passing dynamic data to routes (video 151)
+    passing dynamic data to routes (video 151) using resolver
     ---load single server before accessing this route---
     NOTE: this also can be done in ngOnInit() of that component
         a resolver is used to execute some code before a route is entered 
@@ -235,7 +236,7 @@
 
             resolve(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): Recipe[] | Observable<Recipe[]> | Promise<Recipe[]> {
                 const recipies = this.recipiesService.getRecipies()
-                if(recipies.length !== 0) return recipies;
+                if(recipies.length !== 0) return;
                 return this.dataStorageService.fetchRecipies()
             }
         }

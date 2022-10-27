@@ -53,10 +53,13 @@
 
         NOTE: 
             if you define an array or object (ie: REFRENCES) in a service and you pass it to a component
-                that component will update template when that variable changes because it is pointing to the same variable  
+                that component will update template when that service variable changes because it is pointing to the same variable  
             on the other hand
             if you define a simple type (ie : NOT A REFERENCE, number, string, boolean..) and you pass it to a component
-                that component template wont update when value changes, for that you need to make a Subject and subscribe to it
+                that component template wont update when that service value changes, for that you need to make a Subject and subscribe to it
                 template wont update because ngOnInit runs only once
+            also when you define a reference (array, object) in service and pass it to a component, when you change that reference : variable = [] or variable = {...} template wont update because you lost first reference
+
+            so you need to change inside the reference, using methods like: splice, push ...
 
 

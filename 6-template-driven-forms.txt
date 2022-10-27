@@ -55,7 +55,7 @@
                     *ngIf="f.submitted && !f.valid" class="error-message"
                     ---
                     onSubmit(f: NgForm) {
-                        // to not lose the submitted status
+                        // to not lose the submitted status when form not valid
                         if(f.valid) f.resetForm()
                     }
 
@@ -84,7 +84,7 @@
                 formObject will be: 
                     {
                         controls: {
-                            userData: {// it is like a sub form of the main form
+                            userData: {// it is like a sub-form of the main form
                                 controls: {name, email}
                                 ...
                                 value: {name, email},

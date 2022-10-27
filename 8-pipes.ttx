@@ -1,6 +1,6 @@
 pipes are builtin into angular
 they tranform output
-they are usually used when displaying information (ie: template)
+they are usually used when displaying information (ie: in template)
 remeber the problem you had on GAFA project (capitalise, uppercase ...)
 
 examples
@@ -36,8 +36,10 @@ create custom pipes
         {{ name | shorten }}
 
 
+NOTE: BAD PRACTISES
+    DONT CREATE FILTER AND SORT PIPES, read angular best practises in official docs
 
-advanced (filter a list)
+advanced (filter a list) 
     export class FilterPipe implements PipeTransform {
         transform(value: any, filterStatus: string) {
             if(value.length === 0 || filterStatus === "") return value;
@@ -54,7 +56,7 @@ advanced (filter a list)
 
 
     pure and impure
-        when input value is : stable for eg
+        when input value is : "stable" for eg
         and you click add server button
         the filter value changes (a new server is added)
         but angular doesnt re-run pipe by default for performance reasons

@@ -74,7 +74,7 @@ FormArray
 
     // or you can use a method not a getter
     get hobbyControls() {
-        return (<FormArray>this.signupForm.get('hobbies')).controls // <--- need explicit casting, and (this doesnt work in template also)
+        return (<FormArray>this.signupForm.get('hobbies')).controls // <--- need explicit casting, because (this doesnt work in template also)
     }
 
     <div formArrayName="hobbies" >
@@ -169,3 +169,5 @@ this.signupForm.reset()
     they also exist on reactive form
 
     as we have said, NgForm is just a wrapper on top of FormGroup
+
+    there are also auto added classes: ng-valid, ng-invalid, ng-pending (for async validators) ...

@@ -27,7 +27,7 @@
             </div>
         
         NOTES
-            you cant use multiple structural directives in the same element
+            you can NOT use multiple structural directives in the same element
                 <p
                     *ngFor="..."
                     *ngIf="..."
@@ -58,6 +58,7 @@
             }
         }
         ---
+        // data will be in $event
         <app-component (customEvent)="method($event)" ></app-component>
 
 
