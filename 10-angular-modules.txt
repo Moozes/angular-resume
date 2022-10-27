@@ -8,7 +8,7 @@ we use modules to
 different arrays
     declarations: different part declared in a module
     providers: services that are provided globally in that module
-    imports: import other modules to use their features
+    imports: import other modules to use their features 
     boorstrap: the root component, the starting point for your app, usually there is only one
     exports: stuff exposed by a module to be imported in another module
         example: in module A exports: [A1, A2]
@@ -24,7 +24,7 @@ you can even give every module a routingModule
     RecipiesModule --> RecipiesRoutingModule // in here we use RouterModule.forChild(routes)
 
     in AppModule, imports: [AppRoutingModule, RecipiesModule]
-    in RecipiesModule, imports: [RecipiesRoutingModule] // no need to export it
+    in RecipiesModule, imports: [RecipiesRoutingModule] // no need to export it, it wont be used outside
 
     since we ve split routing, all components of RecipiesModule are used internally, they are loaded via RecipiesRoutingModule and not AppRoutingModule, so we can remove exports array from RecipiesModule (no need to export them)
 
@@ -32,7 +32,7 @@ you can even give every module a routingModule
 Performance inhancing (using lazy loading)
     lazy loading lets you load modules when you need them, and not load every thing from the start
     which means at the start we only download needed code (modules), and when ever we access other pages/features we download them
-    so the app will have a small starting time 
+    so the app will have a short starting time 
 
 
     for lazy loading to work, each feature module needs to bring its own routes using RouterModule.forChild
@@ -63,14 +63,14 @@ Performance inhancing (using lazy loading)
 
 IMPORTANT NOTES
     Module A imports Module B
-    Module A will have access to all stuff imported by module B, componentes, directives ...
+    Module A will have access to all stuff exported by module B, componentes, directives ...
     Module B wont have access to other modules imported by A
     if Module B needs other modules he needs to import them him self
 
     some exceptions
         BrowserModule: provides ngFor, ngIf, but it can only be imported once in AppModule because it does some general app stuff
             instead import CommonModule to have access to ngFor, ngIf in other modules
-        in app module import AppRoutingModule, but in other modules import RouterModule
+        in app module import AppRoutingModule, but in other modules import RouterModule, or there CustomRouter
 
     you can declare components, directives, pipes only in one module
         if you want to use them in multiple modules, declare them in a shared modules, export them and import that shared module
@@ -101,7 +101,7 @@ IMPORTANT NOTES
 
             FAMOUS BUGS
                 when using 1 and three at the same time: service will be provided globally, but for 3 it will have a different instance of that service
-                when you provide a service in a shared module (used in other modules) each module importing the shared module will have a different instance of that service, to avoid this create a CoreModule for services and only provide it in AppModule and nowhere else.
+                when you provide a service in a shared module (used in other modules) each module importing the shared module will have a different instance of that service, to avoid this create a CoreModule for services and only import it in AppModule and nowhere else.
 
     When ever you change/add lazy loading:  () => import().then()
         restart dev server
