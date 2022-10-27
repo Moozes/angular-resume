@@ -35,6 +35,32 @@ Performance inhancing (using lazy loading)
     so the app will have a small starting time 
 
 
+    for lazy loading to work, each feature module needs to bring its own routes using RouterModule.forChild
+    in AppRoutingModule add a route object
+        {
+            path: 'recipies',
+            loadChildren: () => import('./recipies/recipies.module').then((m) => m.RecipiesModule),
+        },
+    in AppModule remove RecipiesModule from imports
+    in RecipiesRoutingModule, path: "recipies" --> ""
+    DONT FORGOT removing unused JS imports or the size of bundles wont shrink
+
+    further more performance inhancement 
+        in app-routing.module
+            RouterModule.forRoot(
+                appRoutes, 
+                {preloadingStrategy: PreloadAllModules} // <--- add this
+            )
+        Provides a preloading strategy that preloads all modules as quickly as possible. BUT initial loading will still be small so you get best of both worlds
+        you can even build your own strategies
+
+    Ahead of time compilation (Aot) VS just in time compilation (Jit)
+        in development we download angular compiler that parses templates, 
+        to avoid this in production use ng build with "--prod" flag this will parse templates before downloading to browser so we dont have to download angular compiler
+        NOTE: this might find errors in templates because (Aot) is more strict then (Jit)
+
+
+
 IMPORTANT NOTES
     Module A imports Module B
     Module A will have access to all stuff imported by module B, componentes, directives ...
@@ -56,3 +82,26 @@ IMPORTANT NOTES
         when using providers array in AppModule and you want to make your AppModule leaner
         create CoreModule which only has providers array with those services then import that module in AppModule only and not any other module, and those services will be provided application wide
 
+        there are 4 places where you can provide services
+            1-@Injectable({providedIn: "root"}) --OR-- app.module providers array
+            2-a component
+            3-a normal loaded module providers array
+            4-a lazy loaded module providers array
+
+            1 and 3 : the service will be available application wide    (root injector)
+            2 : service will be available in component tree             (specific injector)
+            4 : the service will be available in that module only       (child injector)
+
+            
+
+            recomendations: 
+                always use @Injectable({providedIn: "root"}) --OR-- AppModule providers array
+                never use 3
+                only use 2 when you need different service instances for different component trees
+
+            FAMOUS BUGS
+                when using 1 and three at the same time: service will be provided globally, but for 3 it will have a different instance of that service
+                when you provide a service in a shared module (used in other modules) each module importing the shared module will have a different instance of that service, to avoid this create a CoreModule for services and only provide it in AppModule and nowhere else.
+
+    When ever you change/add lazy loading:  () => import().then()
+        restart dev server
